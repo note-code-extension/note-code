@@ -1,40 +1,111 @@
+import { promises as fs } from 'node:fs'
 import * as vscode from 'vscode'
 
 export function activate(context: vscode.ExtensionContext) {
-	const note = context.globalState.get<string>('myNote')
-	const noteManager = new NoteManager(context)
+	const noteManager = new SetupNoteManager(context)
 
-	// Commands
-	vscode.commands.registerCommand('ncode.createNotePath', () => noteManager.createNotePath())
-	vscode.commands.registerCommand('ncode.cloneNote', () => noteManager.cloneNotes())
+	// Provider Web View
+	const provider = new SetupNoteViewProvider(context)
 
-	if (note) {
-		const provider = new NoteViewProvider(context)
-		vscode.window.registerWebviewViewProvider('noteRef', provider)
-	}
+	// Comands
+	context.subscriptions.push(
+		vscode.window.registerWebviewViewProvider('noteRef', provider),
+		vscode.commands.registerCommand('ncode.createNotePath', () => noteManager.createNotePath()),
+		vscode.commands.registerCommand('ncode.updateNotePath', () => noteManager.createNotePath()),
+		vscode.commands.registerCommand('ncode.cloneNote', () => noteManager.cloneNotes()),
+	)
 }
 
 export function deactivate() {}
 
-class NoteManager {
-	constructor(private readonly context: vscode.ExtensionContext) {}
+class VscodeUtils {
+	constructor() {}
 
-	async createNotePath() {
-		const result = await vscode.window.showOpenDialog({
+	async selectPath() {
+		return await vscode.window.showOpenDialog({
 			canSelectFolders: true,
 			canSelectFiles: false,
 			canSelectMany: false,
 			openLabel: 'Select Folder',
 		})
+	}
 
+	async openFile(filePath: string) {
+		vscode.window.showInformationMessage(filePath)
+		try {
+			const doc = await vscode.workspace.openTextDocument(filePath)
+			await vscode.window.showTextDocument(doc, { preview: false })
+		} catch (err: any) {
+			vscode.window.showErrorMessage(`❌ Could not open file: ${err.message}`)
+		}
+	}
+}
+
+class SystemUtils {
+	constructor(private readonly context: vscode.ExtensionContext) {}
+
+	async execCommand(cmd: string, cwd?: string) {
+		const { exec } = await import('node:child_process')
+		const { promisify } = await import('node:util')
+
+		const execAsync = promisify(exec)
+		try {
+			const { stdout, stderr } = await execAsync(cmd, { cwd })
+
+			if (stderr) {
+				vscode.window.showErrorMessage(stderr)
+				return
+			}
+
+			return stdout.trim()
+		} catch (err: any) {
+			vscode.window.showErrorMessage(err)
+		}
+	}
+
+	async readDir(cwd?: string) {
+		if (!cwd) {
+			vscode.window.showErrorMessage('Notes location cannot be found, please redo setup')
+			return
+		}
+
+		try {
+			const entries = (await fs.readdir(cwd, { withFileTypes: true }))
+				.filter((entry) => entry.isFile())
+				.map((file) => file.name)
+
+			vscode.window.showInformationMessage(entries.join(' '))
+		} catch (err: any) {
+			vscode.window.showErrorMessage(err)
+		}
+	}
+}
+
+class SetupNoteManager {
+	private vscodeUtils: VscodeUtils
+	constructor(private readonly context: vscode.ExtensionContext) {
+		this.vscodeUtils = new VscodeUtils()
+	}
+
+	async createNotePath() {
+		const result = await this.vscodeUtils.selectPath()
 		if (!result || result.length === 0) {
 			vscode.window.showErrorMessage('No selected folder')
 			return
 		}
 
+		// fetch selected path
 		const folderPath = result[0].fsPath
 		vscode.window.showInformationMessage(`Selected folder: ${folderPath}`)
-		await this.context.globalState.update('myNote', folderPath)
+		await this.context.globalState.update('ncode.notePath', folderPath)
+
+		// initiate file setups
+		const systemUtils = new SystemUtils(this.context)
+		await systemUtils.execCommand('touch readme.md', folderPath)
+
+		await systemUtils.readDir(this.context.globalState.get<string>('ncode.notePath'))
+		// reload windows once done
+		// vscode.commands.executeCommand('workbench.action.reloadWindow')
 	}
 
 	async cloneNotes(cloneLink?: string) {
@@ -43,63 +114,96 @@ class NoteManager {
 			return
 		}
 
-		const result = await vscode.window.showOpenDialog({
-			canSelectFolders: true,
-			canSelectFiles: false,
-			canSelectMany: false,
-			openLabel: 'Select Folder',
-		})
+		const result = await this.vscodeUtils.selectPath()
 
 		if (!result || result.length === 0) {
 			vscode.window.showErrorMessage('No selected folder')
-			return
 		}
 	}
 }
 
-class NoteViewProvider implements vscode.WebviewViewProvider {
-	constructor(private readonly context: vscode.ExtensionContext) {}
+class SetupNoteViewProvider implements vscode.WebviewViewProvider {
+	private vscodeUtils: VscodeUtils
+	constructor(private readonly context: vscode.ExtensionContext) {
+		this.vscodeUtils = new VscodeUtils()
+	}
+
+	eventHandler(type?: string, data?: any) {
+		if (!type) {
+			vscode.window.showErrorMessage('Command is not executed')
+			return
+		}
+
+		switch (type) {
+			case 'create':
+				vscode.commands.executeCommand('ncode.createNotePath')
+				break
+
+			case 'clone':
+				vscode.commands.executeCommand('ncode.cloneNote')
+				break
+
+			case 'reset':
+				this.context.globalState.update('ncode.notePath', undefined)
+				break
+
+			case 'openFile':
+				this.vscodeUtils.openFile(`${this.context.globalState.get<string>('ncode.notePath')}/${data.file}`)
+				break
+		}
+	}
 
 	resolveWebviewView(webviewView: vscode.WebviewView) {
-		const noteManager = new NoteManager(this.context)
 		webviewView.webview.options = { enableScripts: true }
 
 		webviewView.webview.onDidReceiveMessage(async (message) => {
-			switch (message.type) {
-				case 'create':
-					vscode.commands.executeCommand('ncode.createNotePath')
-					break
-
-				case 'clone':
-					vscode.commands.executeCommand('ncode.cloneNote')
-					break
-			}
+			this.eventHandler(message?.type, message?.data)
 		})
 
-		webviewView.webview.html = `
+		webviewView.webview.html = this.getSetupHtml()
+	}
+
+	getSetupHtml() {
+		const note = this.context.globalState.get('ncode.notePath')
+		return `
 <!DOCTYPE html>
 <html>
 	<body>
-		<form>
-			<h2>Setup Notes</h2>
-			<p>Filepath for notes is not found.</p>
-			<button type="button" id="createBtn">Create notes</button>
+		${
+			note
+				? `
+					<p>Notes created</p>
+					<button class="btn btn-ghost" onclick="vscode.postMessage({ type: 'openFile', data: { file: 'readme.md' }})"> Reset </button>
+			`
+				: `
+					<form>
+						<h2>Setup Notes</h2>
+						<p>Filepath for notes is not found.</p>
+						<button type="button" id="createBtn">Create notes</button>
 
-			<p>When you have existing notes you want to clone.</p>
-			<input id="cloneLink" placeholder="Link to clone repo" />
-			<button type="button" id="cloneBtn">Clone notes</button>
-		</form>
+						<p>When you have existing notes you want to clone.</p>
+						<input id="cloneLink" placeholder="Link to clone repo" />
+						<button class="btn btn-primary" type="button" id="cloneBtn">Clone notes</button>
+						<button class="btn btn-primary" type="button" id="resetBtn">Reset notes</button>
+					</form>
+				`
+		}
 	</body>
 
 	<script>
 		const vscode = acquireVsCodeApi()
 
+		// Setup commands
 		document.getElementById("createBtn").addEventListener("click", () => {
 			vscode.postMessage({ type: "create" })
 		})
 
 		document.getElementById("cloneBtn").addEventListener("click", () => {
 			vscode.postMessage({ type: "clone", data: { value: document.getElementById("cloneLink").value } })
+		})
+
+		document.getElementById("resetBtn").addEventListener("click", () => {
+			vscode.postMessage({ type: "reset" })
 		})
 
 	</script>
@@ -111,15 +215,24 @@ class NoteViewProvider implements vscode.WebviewViewProvider {
 			font-size: var(--vscode-font-size);
 		}
 
-		button {
-			background-color: var(--vscode-button-background);
+		.btn {
 			width: 100%;
-			color: var(--vscode-button-foreground);
 			border: none;
 			padding: 6px 12px;
 			border-radius: 2px;
 			cursor: pointer;
 			margin-bottom: 1rem;
+		}
+
+		.btn-ghost {
+			background: transparent;
+			color: var(--vscode-button-secondaryForeground, var(--vscode-foreground));
+			text-align: left;
+		}
+
+		.btn-primary {
+			background-color: var(--vscode-button-background);
+			color: var(--vscode-button-foreground);
 		}
 
 		input {
@@ -140,8 +253,12 @@ class NoteViewProvider implements vscode.WebviewViewProvider {
 			box-shadow: 0 0 0 1px var(--vscode-focusBorder, #007acc);
 		}
 
-		button:hover {
+		.btn-primary:hover {
 			background-color: var(--vscode-button-hoverBackground);
+		}
+
+		.btn-ghost:hover {
+		    background-color: var(--vscode-button-secondaryBackground, transparent);
 		}
 	</style>
 
