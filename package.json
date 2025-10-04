@@ -28,16 +28,74 @@
 				"title": "Clone repo to save notes"
 			},
 			{
-				"command": "ncode.openNotes",
+				"command": "ncode.openNote",
 				"title": "Open Notes"
+			},
+			{
+				"command": "ncode.createNote",
+				"title": "Create Note"
+			},
+			{
+				"command": "ncode.createFolder",
+				"title": "Create Folder"
+			},
+			{
+				"command": "ncode.deleteNote",
+				"title": "Delete"
+			},
+			{
+				"command": "ncode.updateName",
+				"title": "Rename"
+			},
+			{
+				"command": "ncode.refresh",
+				"title": "NCode: Refresh Notes",
+				"icon": "$(refresh)"
 			}
 		],
+		"menus": {
+			"view/title": [
+				{
+					"command": "ncode.refresh",
+					"when": "view == noteRef",
+					"group": "navigation"
+				}
+			],
+			"view/item/context": [
+				{
+					"command": "ncode.createNote",
+					"when": "view == noteRef",
+					"group": "crud@1"
+				},
+				{
+					"command": "ncode.createFolder",
+					"when": "view == noteRef",
+					"group": "crud@2"
+				},
+				{
+					"command": "ncode.updateName",
+					"when": "view == noteRef",
+					"group": "crud@3"
+				},
+				{
+					"command": "ncode.deleteNote",
+					"when": "view == noteRef",
+					"group": "crud@4"
+				}
+			]
+		},
 		"views": {
 			"noteContainer": [
 				{
 					"id": "noteRef",
-					"name": "Sample View",
-					"type": "webview"
+					"name": "Notes",
+					"icon": "$(notebook)"
+				},
+				{
+					"id": "settingsRef",
+					"name": "Settings",
+					"type": "webview",
+					"icon": "$(settings)"
 				}
 			]
 		},
