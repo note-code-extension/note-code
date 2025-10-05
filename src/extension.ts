@@ -28,9 +28,7 @@ export function activate(context: vscode.ExtensionContext) {
 		vscode.commands.registerCommand('ncode.refresh', () => treeDataProvider.refresh()),
 
 		// CRUD
-		vscode.commands.registerCommand('ncode.createNote', async (file) => {
-			await noteManager.createNote(file)
-		}),
+		vscode.commands.registerCommand('ncode.createNote', (file) => noteManager.createNote(file)),
 		vscode.commands.registerCommand('ncode.createFolder', (file) => noteManager.createFolder(file)),
 		vscode.commands.registerCommand('ncode.deleteNote', (file) => noteManager.deleteNote(file)),
 		vscode.commands.registerCommand('ncode.rename', (file) => noteManager.updateFilename(file)),
