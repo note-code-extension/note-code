@@ -1,16 +1,32 @@
-import type { TreeItem } from '../provider/NotesTreeView'
+import type { NotesTreeProvider, TreeItem } from '../provider/NotesTreeView'
 import type SystemUtils from '../utils/System'
 import type VscodeUtils from '../utils/Vscode'
 import vscode from 'vscode'
 
 export default class NoteManager {
 	private path
+	private refresh?: () => void
 	constructor(
 		private readonly context: vscode.ExtensionContext,
 		private vscodeUtils: VscodeUtils,
 		private systemUtils: SystemUtils,
 	) {
 		this.path = this.context.globalState.get<string>('ncode.noteDir')
+	}
+
+	updatePath() {
+		this.path = this.context.globalState.get<string>('ncode.noteDir')
+	}
+
+	setRefresh(refresh: NotesTreeProvider['refresh']) {
+		this.refresh = refresh
+	}
+
+	execRefresh() {
+		if (this.refresh) {
+			this.refresh()
+			this.updatePath()
+		}
 	}
 
 	async setNoteDirectory() {
@@ -22,10 +38,11 @@ export default class NoteManager {
 
 		this.context.globalState.update('ncode.noteDir', response[0].path)
 		vscode.window.showInformationMessage(`Notes directory created: ${response[0].path}`)
+		this.execRefresh()
 	}
 
-	async readDir() {
-		if (!this.path) {
+	async readDir(path?: string) {
+		if (!this.path && !path) {
 			vscode.window.showErrorMessage('No directory selected')
 			return
 		}
@@ -72,6 +89,8 @@ export default class NoteManager {
 		} catch (err: any) {
 			vscode.window.showErrorMessage(err.message)
 		}
+
+		this.execRefresh()
 	}
 
 	async createFolder(file?: TreeItem) {
@@ -112,6 +131,8 @@ export default class NoteManager {
 		} catch (err: any) {
 			vscode.window.showErrorMessage(err.message)
 		}
+
+		this.execRefresh()
 	}
 
 	async updateFilename(file: TreeItem) {
@@ -149,6 +170,8 @@ export default class NoteManager {
 		} catch (err: any) {
 			vscode.window.showErrorMessage(err.message)
 		}
+
+		this.execRefresh()
 	}
 
 	async deleteNote(file: TreeItem) {
@@ -175,6 +198,8 @@ export default class NoteManager {
 		} catch {
 			vscode.window.showErrorMessage('Failed to delete the file.')
 		}
+
+		this.execRefresh()
 	}
 
 	async cloneIntoDirectory(data?: Record<string, string>) {
@@ -197,6 +222,8 @@ export default class NoteManager {
 		} catch (err: any) {
 			vscode.window.showErrorMessage(err.message)
 		}
+
+		this.execRefresh()
 	}
 
 	async syncNotes() {
@@ -218,7 +245,17 @@ export default class NoteManager {
 		} catch (err: any) {
 			vscode.window.showErrorMessage(err.message)
 		} finally {
-			vscode.window.showInformationMessage('Pulling done')
+			vscode.window.showInformationMessage('Updating files and committing changes...')
+		}
+
+		try {
+			const response = await this.systemUtils.execCommand('git status --porcelain', this.path)
+			if (response.length === 0) {
+				vscode.window.showInformationMessage('All caught up! No changes to commit')
+				return
+			}
+		} catch (err: any) {
+			vscode.window.showErrorMessage(err.message)
 		}
 
 		// Staging changes
@@ -228,10 +265,14 @@ export default class NoteManager {
 			vscode.window.showErrorMessage(err.message)
 		}
 
+		const commitMessage = await vscode.window.showInputBox({
+			prompt: `Commit changes`,
+		})
+
 		// Commiting changes
 		try {
 			await this.systemUtils.execCommand(
-				`git commit -m "${new Date().toISOString().replace(/\.\d{3}Z$/, 'Z')} | notes-change"`,
+				`git commit -m "${new Date().toISOString().replace(/\.\d{3}Z$/, 'Z')} | ${commitMessage ?? 'Notes changed'}"`,
 				this.path,
 			)
 		} catch (err: any) {
@@ -244,7 +285,9 @@ export default class NoteManager {
 		} catch (err: any) {
 			vscode.window.showErrorMessage(err.message)
 		} finally {
-			vscode.window.showInformationMessage('Pushing changes done')
+			vscode.window.showInformationMessage('Updating workspace and committing changes')
 		}
+
+		this.execRefresh()
 	}
 }

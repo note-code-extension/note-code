@@ -17,48 +17,60 @@
 		"commands": [
 			{
 				"command": "ncode.createNotePath",
-				"title": "Create path to save notes"
+				"title": "Set or Create Notes Folder"
 			},
 			{
 				"command": "ncode.updateNotePath",
-				"title": "Update path to save notes"
+				"title": "Update Notes Folder"
 			},
 			{
 				"command": "ncode.cloneNote",
-				"title": "Clone repo to save notes"
+				"title": "Clone Repository for Notes"
 			},
 			{
 				"command": "ncode.openNote",
-				"title": "Open Notes"
+				"title": "Open Note"
 			},
 			{
 				"command": "ncode.createNote",
-				"title": "Create Note"
+				"title": "Create Note",
+				"icon": "$(new-file)"
 			},
 			{
 				"command": "ncode.createFolder",
-				"title": "Create Folder"
+				"title": "Create Folder",
+				"icon": "$(new-folder)"
 			},
 			{
 				"command": "ncode.deleteNote",
 				"title": "Delete"
 			},
 			{
-				"command": "ncode.updateName",
+				"command": "ncode.rename",
 				"title": "Rename"
 			},
 			{
 				"command": "ncode.refresh",
-				"title": "NCode: Refresh Notes",
+				"title": "Refresh",
 				"icon": "$(refresh)"
 			}
 		],
 		"menus": {
 			"view/title": [
 				{
+					"command": "ncode.createNote",
+					"when": "view == noteRef",
+					"group": "navigation@1"
+				},
+				{
+					"command": "ncode.createFolder",
+					"when": "view == noteRef",
+					"group": "navigation@2"
+				},
+				{
 					"command": "ncode.refresh",
 					"when": "view == noteRef",
-					"group": "navigation"
+					"group": "navigation@3"
 				}
 			],
 			"view/item/context": [
@@ -70,10 +82,10 @@
 				{
 					"command": "ncode.createFolder",
 					"when": "view == noteRef",
-					"group": "crud@2"
+					"group": "crud@2 && viewItem == 'folder'"
 				},
 				{
-					"command": "ncode.updateName",
+					"command": "ncode.rename",
 					"when": "view == noteRef",
 					"group": "crud@3"
 				},
@@ -99,6 +111,15 @@
 				}
 			]
 		},
+		"viewsContainers": {
+			"activitybar": [
+				{
+					"id": "noteContainer",
+					"title": "Sample test",
+					"icon": "$(notebook)"
+				}
+			]
+		},
 		"configuration": {
 			"title": "Note Code",
 			"properties": {
@@ -108,15 +129,6 @@
 					"description": "Path of saved notes"
 				}
 			}
-		},
-		"viewsContainers": {
-			"activitybar": [
-				{
-					"id": "noteContainer",
-					"title": "Sample test",
-					"icon": "$(notebook)"
-				}
-			]
 		}
 	},
 	"scripts": {

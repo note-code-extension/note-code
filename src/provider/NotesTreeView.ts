@@ -1,4 +1,5 @@
 import type NoteManager from '../commands/NoteManager'
+import type { FileStructure } from '../utils/System'
 import * as vscode from 'vscode'
 
 export class NotesTreeProvider {
@@ -7,27 +8,33 @@ export class NotesTreeProvider {
 	>()
 	readonly onDidChangeTreeData: vscode.Event<TreeItem | undefined | null | void> = this._onDidChangeTreeData.event
 
-	private dir
+	private dir: FileStructure | undefined
 
 	constructor(
 		private readonly context: vscode.ExtensionContext,
 		private readonly noteManager: NoteManager,
 	) {
-		this.dir = this.noteManager.readDir()
+		this.dir = {}
+	}
+
+	async getDirectoryFiles() {
+		return await this.noteManager.readDir()
 	}
 
 	getTreeItem(element: TreeItem): vscode.TreeItem {
 		return element
 	}
 
-	refresh(element?: TreeItem): void {
-		// Read only folder and update dir value
+	async refresh(element?: TreeItem): Promise<void> {
+		// Reset dir
+		this.dir = await this.getDirectoryFiles()
 		this._onDidChangeTreeData.fire(element)
 	}
 
 	async getChildren(element?: TreeItem): Promise<TreeItem[]> {
 		const noteDir = this.context.globalState.get<string>('ncode.noteDir')
-		const files: Record<string, any> = (await this.dir) ?? []
+		this.dir = await this.getDirectoryFiles()
+		const files: Record<string, any> = this.dir ?? []
 
 		const rootFiles = []
 		const children = []

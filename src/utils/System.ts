@@ -4,7 +4,7 @@ import { join } from 'node:path'
 import { promisify } from 'node:util'
 import vscode from 'vscode'
 
-interface FileStructure {
+export interface FileStructure {
 	[folderPath: string]: string[]
 }
 
@@ -31,11 +31,7 @@ export default class SystemUtils {
 		return `Command failed with unknown error: ${cmd}`
 	}
 
-	async execCommand(cmd: string, cwd?: string) {
-		if (!cmd?.trim()) {
-			throw new Error('Command cannot be empty')
-		}
-
+	async execCommand(cmd: string, cwd: string) {
 		try {
 			const { stdout, stderr } = await this.execAsync(cmd, {
 				cwd,
@@ -44,7 +40,6 @@ export default class SystemUtils {
 				timeout: this.timeout,
 			})
 
-			// Log stderr as warning if present (many tools use stderr for non-error output)
 			if (stderr?.trim()) {
 				console.warn(`Command stderr: ${stderr.trim()}`)
 			}

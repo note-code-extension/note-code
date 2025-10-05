@@ -116,6 +116,10 @@ export default class SettingsViewProvider implements vscode.WebviewViewProvider 
 			box-shadow: 0 0 0 1px var(--vscode-focusBorder, #007acc);
 		}
 
+		button:focus-visible {
+			outline: 0px;
+		}
+
 		.btn-primary:hover {
 			background-color: var(--vscode-button-hoverBackground);
 		}

@@ -15,6 +15,7 @@ export function activate(context: vscode.ExtensionContext) {
 
 	// Provider Tree View
 	const treeDataProvider = new NotesTreeProvider(context, noteManager)
+	noteManager.setRefresh(() => treeDataProvider.refresh())
 
 	// Comands
 	context.subscriptions.push(
@@ -24,15 +25,15 @@ export function activate(context: vscode.ExtensionContext) {
 
 		// Note related actions
 		vscode.commands.registerCommand('ncode.openNote', (file) => vscodeUtils.openFile(file)),
+		vscode.commands.registerCommand('ncode.refresh', () => treeDataProvider.refresh()),
 
 		// CRUD
 		vscode.commands.registerCommand('ncode.createNote', async (file) => {
 			await noteManager.createNote(file)
-			treeDataProvider.refresh()
 		}),
 		vscode.commands.registerCommand('ncode.createFolder', (file) => noteManager.createFolder(file)),
 		vscode.commands.registerCommand('ncode.deleteNote', (file) => noteManager.deleteNote(file)),
-		vscode.commands.registerCommand('ncode.updateName', (file) => noteManager.updateFilename(file)),
+		vscode.commands.registerCommand('ncode.rename', (file) => noteManager.updateFilename(file)),
 
 		// Note path related
 		vscode.commands.registerCommand('ncode.createNotePath', () => noteManager.setNoteDirectory()),
