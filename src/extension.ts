@@ -24,19 +24,19 @@ export function activate(context: vscode.ExtensionContext) {
 		vscode.window.createTreeView('noteRef', { treeDataProvider }),
 
 		// Note related actions
-		vscode.commands.registerCommand('ncode.openNote', (file) => vscodeUtils.openFile(file)),
-		vscode.commands.registerCommand('ncode.refresh', () => treeDataProvider.refresh()),
+		vscode.commands.registerCommand('notecode.note.open', (file) => vscodeUtils.openFile(file)),
+		vscode.commands.registerCommand('notecode.refresh', () => treeDataProvider.refresh()),
 
 		// CRUD
-		vscode.commands.registerCommand('ncode.createNote', (file) => noteManager.createNote(file)),
-		vscode.commands.registerCommand('ncode.createFolder', (file) => noteManager.createFolder(file)),
-		vscode.commands.registerCommand('ncode.deleteNote', (file) => noteManager.deleteNote(file)),
-		vscode.commands.registerCommand('ncode.rename', (file) => noteManager.updateFilename(file)),
+		vscode.commands.registerCommand('notecode.note.create', (file) => noteManager.createNote(file)),
+		vscode.commands.registerCommand('notecode.folder.create', (file) => noteManager.createFolder(file)),
+		vscode.commands.registerCommand('notecode.file.delete', (file) => noteManager.deleteNote(file)),
+		vscode.commands.registerCommand('notecode.file.rename', (file) => noteManager.updateFilename(file)),
 
 		// Note path related
-		vscode.commands.registerCommand('ncode.createNotePath', () => noteManager.setNoteDirectory()),
-		vscode.commands.registerCommand('ncode.updateNotePath', () => noteManager.setNoteDirectory()),
-		vscode.commands.registerCommand('ncode.cloneNote', () => noteManager.cloneIntoDirectory()),
+		vscode.commands.registerCommand('notecode.note.createDirectory', () => noteManager.setNoteDirectory()),
+		vscode.commands.registerCommand('notecode.note.updateDirectory', () => noteManager.setNoteDirectory()),
+		vscode.commands.registerCommand('notecode.repo.clone', () => noteManager.cloneIntoDirectory()),
 	)
 }
 

@@ -11,11 +11,11 @@ export default class NoteManager {
 		private vscodeUtils: VscodeUtils,
 		private systemUtils: SystemUtils,
 	) {
-		this.path = this.context.globalState.get<string>('ncode.noteDir')
+		this.path = this.context.globalState.get<string>('notecode.noteDir')
 	}
 
 	updatePath() {
-		this.path = this.context.globalState.get<string>('ncode.noteDir')
+		this.path = this.context.globalState.get<string>('notecode.noteDir')
 	}
 
 	setRefresh(refresh: NotesTreeProvider['refresh']) {
@@ -36,7 +36,7 @@ export default class NoteManager {
 			return
 		}
 
-		this.context.globalState.update('ncode.noteDir', response[0].path)
+		this.context.globalState.update('notecode.noteDir', response[0].path)
 		vscode.window.showInformationMessage(`Notes directory created: ${response[0].path}`)
 		this.execRefresh()
 	}
@@ -208,11 +208,11 @@ export default class NoteManager {
 			return
 		}
 
-		this.context.globalState.update('ncode.repoLink', data)
+		this.context.globalState.update('notecode.repoLink', data)
 
 		const noteDir = this.path
 		if (!noteDir) {
-			vscode.window.showErrorMessage('The directory for notes is not provided! Create one')
+			vscode.window.showErrorMessage('The note directory is not provided')
 			return
 		}
 
@@ -227,15 +227,15 @@ export default class NoteManager {
 	}
 
 	async syncNotes() {
-		const repoLink = this.context.globalState.get<string>('ncode.repoLink')
+		const repoLink = this.context.globalState.get<string>('notecode.repoLink')
 
 		if (!this.path) {
-			vscode.window.showErrorMessage('Notes directory is not set')
+			vscode.window.showErrorMessage('The notes directory is not provided')
 			return
 		}
 
 		if (!repoLink) {
-			vscode.window.showErrorMessage('Repo link to sync is not set')
+			vscode.window.showErrorMessage('The clone link is not provided')
 			return
 		}
 

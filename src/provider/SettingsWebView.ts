@@ -35,8 +35,8 @@ export default class SettingsViewProvider implements vscode.WebviewViewProvider 
 
 	// After path is set -> setup remote link
 	async getSetupHtml() {
-		const notePath = this.context.globalState.get<string>('ncode.notePath')
-		const repoPath = this.context.globalState.get<string>('ncode.repoLink')
+		const notePath = this.context.globalState.get<string>('notecode.noteDir')
+		const repoPath = this.context.globalState.get<string>('notecode.repoLink')
 		return `
 <!DOCTYPE html>
 <html>

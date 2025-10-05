@@ -32,7 +32,7 @@ export class NotesTreeProvider {
 	}
 
 	async getChildren(element?: TreeItem): Promise<TreeItem[]> {
-		const noteDir = this.context.globalState.get<string>('ncode.noteDir')
+		const noteDir = this.context.globalState.get<string>('notecode.noteDir')
 		this.dir = await this.getDirectoryFiles()
 		const files: Record<string, any> = this.dir ?? []
 
@@ -119,7 +119,7 @@ export class TreeItem extends vscode.TreeItem {
 		this.command =
 			this.type === 'notebook'
 				? {
-						command: 'ncode.openNote',
+						command: 'notecode.note.open',
 						title: 'Open note',
 						arguments: [this],
 					}

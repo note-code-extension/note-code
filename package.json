@@ -1,6 +1,6 @@
 {
-	"name": "ncode",
-	"displayName": "node-code",
+	"name": "note-code",
+	"displayName": "note-code",
 	"description": "A markdown tool note saver extension",
 	"version": "0.0.1",
 	"engines": {
@@ -16,41 +16,41 @@
 	"contributes": {
 		"commands": [
 			{
-				"command": "ncode.createNotePath",
+				"command": "notecode.note.createDirectory",
 				"title": "Set or Create Notes Folder"
 			},
 			{
-				"command": "ncode.updateNotePath",
+				"command": "notecode.note.updateDirectory",
 				"title": "Update Notes Folder"
 			},
 			{
-				"command": "ncode.cloneNote",
+				"command": "notecode.repo.clone",
 				"title": "Clone Repository for Notes"
 			},
 			{
-				"command": "ncode.openNote",
+				"command": "notecode.note.open",
 				"title": "Open Note"
 			},
 			{
-				"command": "ncode.createNote",
+				"command": "notecode.note.create",
 				"title": "Create Note",
 				"icon": "$(new-file)"
 			},
 			{
-				"command": "ncode.createFolder",
+				"command": "notecode.folder.create",
 				"title": "Create Folder",
 				"icon": "$(new-folder)"
 			},
 			{
-				"command": "ncode.deleteNote",
+				"command": "notecode.file.delete",
 				"title": "Delete"
 			},
 			{
-				"command": "ncode.rename",
+				"command": "notecode.file.rename",
 				"title": "Rename"
 			},
 			{
-				"command": "ncode.refresh",
+				"command": "notecode.refresh",
 				"title": "Refresh",
 				"icon": "$(refresh)"
 			}
@@ -58,39 +58,39 @@
 		"menus": {
 			"view/title": [
 				{
-					"command": "ncode.createNote",
+					"command": "notecode.note.create",
 					"when": "view == noteRef",
 					"group": "navigation@1"
 				},
 				{
-					"command": "ncode.createFolder",
+					"command": "notecode.folder.create",
 					"when": "view == noteRef",
 					"group": "navigation@2"
 				},
 				{
-					"command": "ncode.refresh",
+					"command": "notecode.refresh",
 					"when": "view == noteRef",
 					"group": "navigation@3"
 				}
 			],
 			"view/item/context": [
 				{
-					"command": "ncode.createNote",
+					"command": "notecode.note.create",
 					"when": "view == noteRef",
 					"group": "crud@1"
 				},
 				{
-					"command": "ncode.createFolder",
+					"command": "notecode.folder.create",
 					"when": "view == noteRef",
 					"group": "crud@2 && viewItem == 'folder'"
 				},
 				{
-					"command": "ncode.rename",
+					"command": "notecode.file.rename",
 					"when": "view == noteRef",
 					"group": "crud@3"
 				},
 				{
-					"command": "ncode.deleteNote",
+					"command": "notecode.file.delete",
 					"when": "view == noteRef",
 					"group": "crud@4"
 				}
@@ -123,7 +123,7 @@
 		"configuration": {
 			"title": "Note Code",
 			"properties": {
-				"ncode.notePath": {
+				"notecode.noteDir": {
 					"type": "string",
 					"default": "",
 					"description": "Path of saved notes"
