@@ -65,7 +65,7 @@ export default class NoteManager {
 			return null
 		}
 
-		const path = file?.filePath ?? this.path
+		const path = file && file.filePath && file.contextValue === 'folder' ? file.filePath : this.path
 
 		if (!path) {
 			vscode.window.showErrorMessage('Selected directory not found. Select a valid folder to continue.')
@@ -107,7 +107,7 @@ export default class NoteManager {
 			return null
 		}
 
-		const path = file?.filePath ?? this.path
+		const path = file && file.filePath && file.contextValue === 'folder' ? file.filePath : this.path
 
 		if (!path) {
 			vscode.window.showErrorMessage('Selected directory not found. Select a valid folder to continue.')
@@ -194,7 +194,7 @@ export default class NoteManager {
 
 		try {
 			await this.systemUtils.deleteFile(file.filePath)
-			vscode.window.showInformationMessage(`${file.label}" was deleted successfully.`)
+			vscode.window.showInformationMessage(`"${file.label}" was deleted successfully.`)
 		} catch {
 			vscode.window.showErrorMessage('Failed to delete the file.')
 		}

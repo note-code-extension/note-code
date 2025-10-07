@@ -115,7 +115,7 @@
 			"activitybar": [
 				{
 					"id": "noteContainer",
-					"title": "Sample test",
+					"title": "Note code",
 					"icon": "$(notebook)"
 				}
 			]

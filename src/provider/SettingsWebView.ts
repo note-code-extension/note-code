@@ -46,11 +46,11 @@ export default class SettingsViewProvider implements vscode.WebviewViewProvider 
 				notePath
 					? `
             		<p>Notes folder found.</p>
-            		<button type="button" class="btn btn-primary" id="createBtn">Change folder path</button>
+            		<button type="button" class="btn btn-primary" id="createBtn">Change Notes Folder</button>
 				`
 					: `
             		<p>Notes folder not found.</p>
-            		<button type="button" class="btn btn-primary" id="createBtn">Create notes</button>
+            		<button type="button" class="btn btn-primary" id="createBtn">Select Notes Folder</button>
 				`
 			}
             <p>When you have existing notes you want to clone.</p>

@@ -81,7 +81,13 @@ export class NotesTreeProvider {
 					const relative = key.slice(element.rootFolder.length + 1)
 					if (!relative.includes('/')) {
 						children.push(
-							new TreeItem(key, relative, 'folder', vscode.TreeItemCollapsibleState.Collapsed, key),
+							new TreeItem(
+								`${noteDir}/${key}`,
+								relative,
+								'folder',
+								vscode.TreeItemCollapsibleState.Collapsed,
+								key,
+							),
 						)
 					}
 				}
