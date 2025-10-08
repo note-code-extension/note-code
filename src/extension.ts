@@ -36,6 +36,7 @@ export function activate(context: vscode.ExtensionContext) {
 		// Note path related
 		vscode.commands.registerCommand('notecode.note.createDirectory', () => noteManager.setNoteDirectory()),
 		vscode.commands.registerCommand('notecode.note.updateDirectory', () => noteManager.setNoteDirectory()),
+		vscode.commands.registerCommand('notecode.note.sync', () => noteManager.setNoteDirectory()),
 		vscode.commands.registerCommand('notecode.repo.clone', () => noteManager.cloneIntoDirectory()),
 	)
 }

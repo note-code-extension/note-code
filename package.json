@@ -17,19 +17,23 @@
 		"commands": [
 			{
 				"command": "notecode.note.createDirectory",
-				"title": "Set or Create Notes Folder"
+				"title": "NoteCode: Set or Create Notes Folder"
 			},
 			{
 				"command": "notecode.note.updateDirectory",
-				"title": "Update Notes Folder"
+				"title": "NoteCode: Update Notes Folder"
+			},
+			{
+				"command": "notecode.note.updateDirectory",
+				"title": "NoteCode: Sync notes"
 			},
 			{
 				"command": "notecode.repo.clone",
-				"title": "Clone Repository for Notes"
+				"title": "NoteCode: Clone Repository for Notes"
 			},
 			{
 				"command": "notecode.note.open",
-				"title": "Open Note"
+				"title": "NoteCode: Open Note"
 			},
 			{
 				"command": "notecode.note.create",
