@@ -134,6 +134,11 @@
 					"type": "string",
 					"default": "",
 					"description": "Path of saved notes"
+				},
+				"notecode.repoLink": {
+					"type": "string",
+					"default": "",
+					"description": "Repository link to sync with changes"
 				}
 			}
 		}
