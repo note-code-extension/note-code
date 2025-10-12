@@ -107,7 +107,14 @@ export default class NoteManager {
 			return null
 		}
 
-		const path = file && file.filePath && file.contextValue === 'folder' ? file.filePath : this.path
+		if (file && file?.contextValue === 'notebook') {
+			vscode.window.showErrorMessage(
+				'You can’t create a folder while a note file is selected. Please select a directory instead.',
+			)
+			return
+		}
+
+		const path = file && file.filePath ? file.filePath : this.path
 
 		if (!path) {
 			vscode.window.showErrorMessage('Selected directory not found. Select a valid folder to continue.')

@@ -2,7 +2,7 @@
 	"name": "note-code",
 	"displayName": "Note Code",
 	"description": "A markdown tool note saver extension",
-	"version": "0.0.2",
+	"version": "0.0.3",
 	"icon": "images/note-code-icon.png",
 	"publisher": "note-code-extensions",
 	"repository": {
