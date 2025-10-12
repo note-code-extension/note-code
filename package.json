@@ -85,8 +85,8 @@
 				},
 				{
 					"command": "notecode.folder.create",
-					"when": "view == noteRef",
-					"group": "crud@2 && viewItem == 'folder'"
+					"when": "view == noteRef && viewItem == folder",
+					"group": "crud@2"
 				},
 				{
 					"command": "notecode.file.rename",
