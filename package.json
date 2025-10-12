@@ -3,6 +3,8 @@
 	"displayName": "note-code",
 	"description": "A markdown tool note saver extension",
 	"version": "0.0.1",
+	"icon": "images/note-code-icon.png",
+	"publisher": "note-code-extensions",
 	"repository": {
 		"url": "https://github.com/note-code-extension/note-code"
 	},
