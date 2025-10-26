@@ -52,13 +52,13 @@ export default class SystemUtils {
 	}
 
 	async createFile(filename: string, cwd: string) {
+		const filemeta = join(`${cwd}/${filename}.md`)
 		try {
-			await promises.access(`${cwd}/${filename}.md`, promises.constants.F_OK)
+			await promises.access(filemeta, promises.constants.F_OK)
 			throw new Error(`File "${filename}" already exists on the folder`)
 		} catch (err: any) {
 			if (err.code === 'ENOENT') {
-				const fileMeta = join(cwd, `${filename}.md`)
-				writeFileSync(fileMeta, '# Start taking notes!', { flag: 'wx' })
+				writeFileSync(filemeta, '# Start taking notes!', { flag: 'wx' })
 				return `File created on ${cwd}`
 			} else {
 				throw err
@@ -67,7 +67,7 @@ export default class SystemUtils {
 	}
 
 	async createFolder(foldername: string, cwd: string) {
-		const folderpath = `${cwd}/${foldername}`
+		const folderpath = join(`${cwd}/${foldername}`)
 
 		try {
 			await promises.access(folderpath)
@@ -88,12 +88,13 @@ export default class SystemUtils {
 			.splice(0, filepath.split('/').length - 1)
 			.join('/')
 
+		const filemeta = join(`${f}/${newName}${type}`)
 		try {
-			await promises.access(`${f}/${newName}${type}`)
+			await promises.access(filemeta)
 			throw new Error(`File already exists: ${f}`)
 		} catch (err: any) {
 			if (err.code === 'ENOENT') {
-				await promises.rename(filepath, `${f}/${newName}${type}`)
+				await promises.rename(filepath, filemeta)
 				return `File name updated to ${newName}`
 			} else {
 				throw err
