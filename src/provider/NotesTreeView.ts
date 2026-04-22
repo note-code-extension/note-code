@@ -1,5 +1,6 @@
 import type NoteManager from '../commands/NoteManager'
 import type { FileStructure } from '../utils/System'
+import { join, sep } from 'node:path'
 import * as vscode from 'vscode'
 
 export class NotesTreeProvider {
@@ -47,17 +48,17 @@ export class NotesTreeProvider {
 						...value.map(
 							(file: string) =>
 								new TreeItem(
-									`${noteDir}/${file}`,
+									join(noteDir!, file),
 									file.split('.')[0],
 									'notebook',
 									vscode.TreeItemCollapsibleState.None,
 								),
 						),
 					)
-				} else if (!key.includes('/')) {
+				} else if (!key.includes(sep)) {
 					children.push(
 						new TreeItem(
-							`${noteDir}/${key}`,
+							join(noteDir!, key),
 							key,
 							'folder',
 							vscode.TreeItemCollapsibleState.Collapsed,
@@ -77,12 +78,12 @@ export class NotesTreeProvider {
 			const folderFiles: string[] = files[element.rootFolder]
 
 			for (const key of Object.keys(files)) {
-				if (key.startsWith(`${element.rootFolder}/`)) {
+				if (key.startsWith(`${element.rootFolder}${sep}`)) {
 					const relative = key.slice(element.rootFolder.length + 1)
-					if (!relative.includes('/')) {
+					if (!relative.includes(sep)) {
 						children.push(
 							new TreeItem(
-								`${noteDir}/${key}`,
+								join(noteDir!, key),
 								relative,
 								'folder',
 								vscode.TreeItemCollapsibleState.Collapsed,
@@ -97,7 +98,7 @@ export class NotesTreeProvider {
 				...folderFiles.map(
 					(folderFiles) =>
 						new TreeItem(
-							`${noteDir}/${element.rootFolder}/${folderFiles}`,
+							join(noteDir!, element.rootFolder ?? '', folderFiles),
 							folderFiles.split('.')[0],
 							'notebook',
 							vscode.TreeItemCollapsibleState.None,

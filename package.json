@@ -2,7 +2,7 @@
 	"name": "note-code",
 	"displayName": "Note Code",
 	"description": "A markdown tool note saver extension",
-	"version": "0.1.1",
+	"version": "0.1.2",
 	"icon": "images/note-code-icon.png",
 	"publisher": "note-code-extensions",
 	"repository": {
@@ -10,7 +10,7 @@
 	},
 	"engines": {
 		"vscode": "^1.104.0",
-		"node": "24.8.0"
+		"node": ">=22.0.0"
 	},
 	"engineStrict": true,
 	"categories": [
@@ -87,7 +87,7 @@
 			"view/item/context": [
 				{
 					"command": "notecode.note.create",
-					"when": "view == noteRef",
+					"when": "view == noteRef && viewItem == folder",
 					"group": "crud@1"
 				},
 				{

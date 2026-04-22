@@ -1,6 +1,6 @@
-import { exec } from 'node:child_process'
+import { exec, execFile } from 'node:child_process'
 import { promises, writeFileSync } from 'node:fs'
-import { join } from 'node:path'
+import { dirname, join, normalize } from 'node:path'
 import { promisify } from 'node:util'
 import vscode from 'vscode'
 
@@ -10,6 +10,7 @@ export interface FileStructure {
 
 export default class SystemUtils {
 	private readonly execAsync = promisify(exec)
+	private readonly execFileAsync = promisify(execFile)
 	private readonly maxBuffer = 1024 * 1024 * 10
 	private readonly timeout = 30000
 
@@ -51,8 +52,28 @@ export default class SystemUtils {
 		}
 	}
 
+	async execGitCommand(args: string[], cwd: string) {
+		try {
+			const { stdout, stderr } = await this.execFileAsync('git', args, {
+				cwd,
+				encoding: 'utf8',
+				maxBuffer: this.maxBuffer,
+				timeout: this.timeout,
+			})
+
+			if (stderr?.trim()) {
+				console.warn(`Git stderr: ${stderr.trim()}`)
+			}
+
+			return stdout.trim()
+		} catch (error) {
+			const errorMessage = this.formatError(error, `git ${args.join(' ')}`)
+			throw new Error(errorMessage)
+		}
+	}
+
 	async createFile(filename: string, cwd: string) {
-		const filemeta = join(`${cwd}/${filename}.md`)
+		const filemeta = normalize(join(`${cwd}/${filename}.md`))
 		try {
 			await promises.access(filemeta, promises.constants.F_OK)
 			throw new Error(`File "${filename}" already exists on the folder`)
@@ -67,7 +88,7 @@ export default class SystemUtils {
 	}
 
 	async createFolder(foldername: string, cwd: string) {
-		const folderpath = join(`${cwd}/${foldername}`)
+		const folderpath = normalize(join(`${cwd}/${foldername}`))
 
 		try {
 			await promises.access(folderpath)
@@ -83,12 +104,9 @@ export default class SystemUtils {
 	}
 
 	async updateFilename(filepath: string, newName: string, type: string = '') {
-		const f = filepath
-			.split('/')
-			.splice(0, filepath.split('/').length - 1)
-			.join('/')
+		const f = dirname(filepath)
 
-		const filemeta = join(`${f}/${newName}${type}`)
+		const filemeta = normalize(join(`${f}/${newName}${type}`))
 		try {
 			await promises.access(filemeta)
 			throw new Error(`File already exists: ${f}`)
@@ -127,8 +145,8 @@ export default class SystemUtils {
 					files.push(entry.name)
 				} else if (entry.isDirectory()) {
 					queue.push({
-						path: join(path, entry.name),
-						relative: relative === '.' ? entry.name : join(relative, entry.name),
+						path: normalize(join(path, entry.name)),
+						relative: relative === '.' ? entry.name : normalize(join(relative, entry.name)),
 					})
 				}
 			}

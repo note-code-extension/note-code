@@ -4,7 +4,7 @@ import type VscodeUtils from '../utils/Vscode'
 import vscode from 'vscode'
 
 export default class NoteManager {
-	private path
+	private path: string | undefined
 	private refresh?: () => void
 	constructor(
 		private readonly context: vscode.ExtensionContext,
@@ -36,7 +36,7 @@ export default class NoteManager {
 			return
 		}
 
-		this.context.globalState.update('notecode.noteDir', response[0].path)
+		this.context.globalState.update('notecode.noteDir', response[0].fsPath)
 		vscode.window.showInformationMessage(`Notes directory created: ${response[0].path}`)
 		this.execRefresh()
 	}
@@ -192,6 +192,7 @@ export default class NoteManager {
 
 		if (!file.filePath) {
 			vscode.window.showErrorMessage('A file path is required to complete this action.')
+			return
 		}
 
 		if (userChoice !== 'Confirm') {
@@ -209,9 +210,15 @@ export default class NoteManager {
 		this.execRefresh()
 	}
 
-	async cloneIntoDirectory(data?: Record<string, string>) {
+	async cloneIntoDirectory(data?: string) {
 		if (!data) {
 			vscode.window.showErrorMessage('The clone link is not provided')
+			return
+		}
+
+		// Validate repo URL format to prevent injection
+		if (!/^(https:\/\/|git@|ssh:\/\/).+\.git$/.test(data)) {
+			vscode.window.showErrorMessage('Invalid repository URL format')
 			return
 		}
 
@@ -224,7 +231,7 @@ export default class NoteManager {
 		}
 
 		try {
-			await this.systemUtils.execCommand(`git clone ${data} .`, noteDir)
+			await this.systemUtils.execGitCommand(['clone', data, '.'], noteDir)
 			vscode.window.showInformationMessage('Successfully created notes!')
 		} catch (err: any) {
 			vscode.window.showErrorMessage(err.message)
@@ -248,28 +255,31 @@ export default class NoteManager {
 
 		// Pulling changes
 		try {
-			await this.systemUtils.execCommand('git pull', this.path)
+			await this.systemUtils.execGitCommand(['pull'], this.path)
 		} catch (err: any) {
 			vscode.window.showErrorMessage(err.message)
-		} finally {
-			vscode.window.showInformationMessage('Updating files and committing changes...')
+			return
 		}
 
 		try {
-			const response = await this.systemUtils.execCommand('git status --porcelain', this.path)
+			const response = await this.systemUtils.execGitCommand(['status', '--porcelain'], this.path)
 			if (response.length === 0) {
 				vscode.window.showInformationMessage('All caught up! No changes to commit')
 				return
 			}
 		} catch (err: any) {
 			vscode.window.showErrorMessage(err.message)
+			return
 		}
+
+		vscode.window.showInformationMessage('Updating files and committing changes...')
 
 		// Staging changes
 		try {
-			await this.systemUtils.execCommand('git add .', this.path)
+			await this.systemUtils.execGitCommand(['add', '.'], this.path)
 		} catch (err: any) {
 			vscode.window.showErrorMessage(err.message)
+			return
 		}
 
 		const commitMessage = await vscode.window.showInputBox({
@@ -278,21 +288,19 @@ export default class NoteManager {
 
 		// Commiting changes
 		try {
-			await this.systemUtils.execCommand(
-				`git commit -m "${new Date().toISOString().replace(/\.\d{3}Z$/, 'Z')} | ${commitMessage ?? 'Notes changed'}"`,
-				this.path,
-			)
+			const timestamp = new Date().toISOString().replace(/\.\d{3}Z$/, 'Z')
+			const message = `${timestamp} | ${commitMessage ?? 'Notes changed'}`
+			await this.systemUtils.execGitCommand(['commit', '-m', message], this.path)
 		} catch (err: any) {
 			vscode.window.showErrorMessage(err.message)
 		}
 
 		// Pushing changes
 		try {
-			this.systemUtils.execCommand('git push', this.path)
+			await this.systemUtils.execGitCommand(['push'], this.path)
+			vscode.window.showInformationMessage('Successfully synced notes!')
 		} catch (err: any) {
 			vscode.window.showErrorMessage(err.message)
-		} finally {
-			vscode.window.showInformationMessage('Updating workspace and committing changes')
 		}
 
 		this.execRefresh()
