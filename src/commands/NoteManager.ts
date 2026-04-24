@@ -14,19 +14,29 @@ export default class NoteManager {
 		this.path = this.context.globalState.get<string>('notecode.noteDir')
 	}
 
-	updatePath() {
+	private updatePath() {
 		this.path = this.context.globalState.get<string>('notecode.noteDir')
 	}
 
-	setRefresh(refresh: NotesTreeProvider['refresh']) {
-		this.refresh = refresh
-	}
-
-	execRefresh() {
+	private execRefresh() {
 		if (this.refresh) {
 			this.refresh()
 			this.updatePath()
 		}
+	}
+
+	openFolder() {
+		if (!this.path) {
+			vscode.window.showErrorMessage('No path has been selected')
+			return
+		}
+
+		const uri = vscode.Uri.file(this.path)
+		vscode.commands.executeCommand('vscode.openFolder', uri, { forceNewWindow: true })
+	}
+
+	setRefresh(refresh: NotesTreeProvider['refresh']) {
+		this.refresh = refresh
 	}
 
 	async setNoteDirectory() {
@@ -217,6 +227,7 @@ export default class NoteManager {
 		}
 
 		// Validate repo URL format to prevent injection
+		// eslint-disable-next-line regexp/no-unused-capturing-group
 		if (!/^(https:\/\/|git@|ssh:\/\/).+\.git$/.test(data)) {
 			vscode.window.showErrorMessage('Invalid repository URL format')
 			return

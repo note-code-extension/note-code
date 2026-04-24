@@ -26,6 +26,9 @@ importers:
       '@typescript-eslint/parser':
         specifier: ^8.42.0
         version: 8.44.0(eslint@9.35.0)(typescript@5.9.2)
+      '@vscode/codicons':
+        specifier: ^0.0.45
+        version: 0.0.45
       '@vscode/test-cli':
         specifier: ^0.0.11
         version: 0.0.11
@@ -515,6 +518,9 @@ packages:
         optional: true
       vitest:
         optional: true
+
+  '@vscode/codicons@0.0.45':
+    resolution: {integrity: sha512-1KAZ7XCMagp5Gdrlr4bbbcAqgcIL623iO1wW6rfcSVGAVUQvR0WP7bQx1SbJ11gmV3fdQTSEFIJQ/5C+HuVasw==}
 
   '@vscode/test-cli@0.0.11':
     resolution: {integrity: sha512-qO332yvzFqGhBMJrp6TdwbIydiHgCtxXc2Nl6M58mbH/Z+0CyLR76Jzv4YWPEthhrARprzCRJUqzFvTHFhTj7Q==}
@@ -2837,6 +2843,8 @@ snapshots:
       typescript: 5.9.2
     transitivePeerDependencies:
       - supports-color
+
+  '@vscode/codicons@0.0.45': {}
 
   '@vscode/test-cli@0.0.11':
     dependencies:

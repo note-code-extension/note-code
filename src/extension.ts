@@ -1,17 +1,32 @@
 import * as vscode from 'vscode'
 import NoteManager from './commands/NoteManager'
 import { NotesTreeProvider } from './provider/NotesTreeView'
-import SettingsViewProvider from './provider/SettingsWebView'
+import { RepositoryWebView } from './provider/RepositoryWebView'
+import { WorkspaceViewProvider } from './provider/WorkspaceWebView'
 import SystemUtils from './utils/System'
 import VscodeUtils from './utils/Vscode'
+
+// Load codicon on webview
+function loadIconsUri(context: vscode.ExtensionContext) {
+	const icon = vscode.window.createWebviewPanel('noteSettings', 'Settings', vscode.ViewColumn.One, {
+		enableScripts: true,
+		localResourceRoots: [vscode.Uri.joinPath(context.extensionUri, 'node_modules', '@vscode/codicons', 'dist')],
+	})
+
+	return icon.webview.asWebviewUri(
+		vscode.Uri.joinPath(context.extensionUri, 'node_modules', '@vscode/codicons', 'dist', 'codicon.css'),
+	)
+}
 
 export function activate(context: vscode.ExtensionContext) {
 	const vscodeUtils = new VscodeUtils()
 	const systemUtils = new SystemUtils()
 	const noteManager = new NoteManager(context, vscodeUtils, systemUtils)
+	const codIconsUri = loadIconsUri(context)
 
 	// Provider Web View
-	const webProvider = new SettingsViewProvider(context, noteManager)
+	const workspaceViewProvider = new WorkspaceViewProvider(context, noteManager, codIconsUri)
+	const repositoryWebProvider = new RepositoryWebView(context, noteManager, codIconsUri)
 
 	// Provider Tree View
 	const treeDataProvider = new NotesTreeProvider(context, noteManager)
@@ -20,7 +35,8 @@ export function activate(context: vscode.ExtensionContext) {
 	// Comands
 	context.subscriptions.push(
 		// Provider
-		vscode.window.registerWebviewViewProvider('settingsRef', webProvider),
+		vscode.window.registerWebviewViewProvider('workspaceRef', workspaceViewProvider),
+		vscode.window.registerWebviewViewProvider('repositoryRef', repositoryWebProvider),
 		vscode.window.createTreeView('noteRef', { treeDataProvider }),
 
 		// Note related actions

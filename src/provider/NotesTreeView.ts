@@ -134,6 +134,8 @@ export class TreeItem extends vscode.TreeItem {
 
 		if (this.type === 'notebook') {
 			this.iconPath = new vscode.ThemeIcon('notebook')
+		} else {
+			this.iconPath = new vscode.ThemeIcon('folder')
 		}
 	}
 }

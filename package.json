@@ -2,7 +2,7 @@
 	"name": "note-code",
 	"displayName": "Note Code",
 	"description": "A markdown tool note saver extension",
-	"version": "0.1.2",
+	"version": "1.0.1",
 	"icon": "images/note-code-icon.png",
 	"publisher": "note-code-extensions",
 	"repository": {
@@ -115,10 +115,16 @@
 					"icon": "$(notebook)"
 				},
 				{
-					"id": "settingsRef",
-					"name": "Settings",
+					"id": "workspaceRef",
+					"name": "Workspace",
 					"type": "webview",
 					"icon": "$(settings)"
+				},
+				{
+					"id": "repositoryRef",
+					"name": "Remote & Sync",
+					"type": "webview",
+					"icon": "$(folder)"
 				}
 			]
 		},
@@ -168,6 +174,7 @@
 		"@types/vscode": "^1.104.0",
 		"@typescript-eslint/eslint-plugin": "^8.42.0",
 		"@typescript-eslint/parser": "^8.42.0",
+		"@vscode/codicons": "^0.0.45",
 		"@vscode/test-cli": "^0.0.11",
 		"@vscode/test-electron": "^2.5.2",
 		"esbuild": "^0.25.9",
