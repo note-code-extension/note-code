@@ -1,6 +1,6 @@
 import type NoteManager from '../commands/NoteManager'
 import type { FileStructure } from '../utils/System'
-import { join, sep } from 'node:path'
+import { basename, extname, join, sep } from 'node:path'
 import * as vscode from 'vscode'
 
 export class NotesTreeProvider {
@@ -49,8 +49,8 @@ export class NotesTreeProvider {
 							(file: string) =>
 								new TreeItem(
 									join(noteDir!, file),
-									file.split('.')[0],
-									'notebook',
+									basename(file),
+									extname(file) === 'md' ? 'notebook' : 'file',
 									vscode.TreeItemCollapsibleState.None,
 								),
 						),
@@ -99,8 +99,8 @@ export class NotesTreeProvider {
 					(folderFiles) =>
 						new TreeItem(
 							join(noteDir!, element.rootFolder ?? '', folderFiles),
-							folderFiles.split('.')[0],
-							'notebook',
+							basename(folderFiles),
+							extname(folderFiles) === 'md' ? 'notebook' : 'file',
 							vscode.TreeItemCollapsibleState.None,
 						),
 				),
@@ -115,7 +115,7 @@ export class TreeItem extends vscode.TreeItem {
 	constructor(
 		public filePath: string,
 		public readonly label: string,
-		public type: 'notebook' | 'folder',
+		public type: 'notebook' | 'folder' | 'file',
 		public collapsibleState: vscode.TreeItemCollapsibleState = vscode.TreeItemCollapsibleState.None,
 		public rootFolder?: string,
 	) {
@@ -124,7 +124,7 @@ export class TreeItem extends vscode.TreeItem {
 		this.contextValue = type
 
 		this.command =
-			this.type === 'notebook'
+			this.type === 'notebook' || this.type === 'file'
 				? {
 						command: 'notecode.note.open',
 						title: 'Open note',
@@ -134,8 +134,10 @@ export class TreeItem extends vscode.TreeItem {
 
 		if (this.type === 'notebook') {
 			this.iconPath = new vscode.ThemeIcon('notebook')
-		} else {
+		} else if (this.type === 'folder') {
 			this.iconPath = new vscode.ThemeIcon('folder')
+		} else {
+			this.iconPath = new vscode.ThemeIcon('file')
 		}
 	}
 }

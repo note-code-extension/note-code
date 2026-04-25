@@ -4,13 +4,33 @@ import process from 'node:process'
 import { baseStyles } from '../constants/styles.css'
 
 export class WorkspaceViewProvider implements vscode.WebviewViewProvider {
+	private notePath: string
+	private _view: vscode.WebviewView | undefined
+
 	constructor(
 		private readonly context: vscode.ExtensionContext,
 		private readonly noteManager: NoteManager,
 		private readonly codIconsUri: vscode.Uri,
-	) {}
+	) {
+		this.notePath = this.context.globalState.get<string>('notecode.noteDir') ?? ''
+		this._view = undefined
+	}
+
+	refresh() {
+		const newDir = this.context.globalState.get<string>('notecode.noteDir') ?? ''
+
+		if (newDir !== this.notePath && this._view) {
+			this.notePath = newDir
+
+			this._view.webview.postMessage({
+				type: 'updatePath',
+				path: newDir,
+			})
+		}
+	}
 
 	resolveWebviewView(webviewView: vscode.WebviewView) {
+		this._view = webviewView
 		webviewView.webview.options = {
 			enableScripts: true,
 		}
@@ -19,6 +39,10 @@ export class WorkspaceViewProvider implements vscode.WebviewViewProvider {
 
 		webviewView.webview.onDidReceiveMessage((message) => {
 			this.workspaceAction(message.type)
+		})
+
+		webviewView.onDidDispose(() => {
+			this._view = undefined
 		})
 	}
 
@@ -36,7 +60,6 @@ export class WorkspaceViewProvider implements vscode.WebviewViewProvider {
 
 	// After path is set -> setup remote link
 	private getSetupHtml() {
-		const notePath = this.context.globalState.get<string>('notecode.noteDir')
 		const isWindows = process.platform === 'win32'
 
 		return `
@@ -51,9 +74,9 @@ export class WorkspaceViewProvider implements vscode.WebviewViewProvider {
 			<p> Local Workspace Path. </p>
 
             <input 
-				id="cloneLink"
+				id="pathLink"
 				placeholder="${isWindows ? 'C:\\Users\\name\\Documents\\notes' : '~/Documents/notes'}"
-				value="${notePath ?? ''}"
+				value="${this.notePath ?? ''}"
 				disabled="true"
 			/>
 
@@ -73,7 +96,7 @@ export class WorkspaceViewProvider implements vscode.WebviewViewProvider {
 				class="btn btn-secondary"
 				id="createBtn"
 			>
-				${notePath ? `Change folder` : `Select folder`}
+				${this.notePath ? `Change folder` : `Select folder`}
 			</button>
         </form>
 	</body>
@@ -88,6 +111,17 @@ export class WorkspaceViewProvider implements vscode.WebviewViewProvider {
 
 		document.getElementById("openFolderBtn").addEventListener("click", () => {
 			vscode.postMessage({ type: "open" })
+		})
+
+		window.addEventListener('message', event => {
+			const message = event.data;
+
+			if (message.type === 'updatePath') {
+				const input = document.getElementById('pathLink')
+				if (input) {
+					input.value = message.path
+				}
+			}
 		})
 	</script>
 

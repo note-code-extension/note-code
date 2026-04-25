@@ -14,6 +14,20 @@ A simple **Markdown** note taking extension for Vs Code - Create, Manage, sync n
 
 ---
 
+## ⚡️ Motivation
+
+> Many note-taking extensions are currently available, but most are overwhelming and difficult to use "out of the box." Note code is built for developers who want a "plug-and-play" experience with batteries included—automating the process of cloning, updating, and syncing notes with your repositories.
+
+---
+
+## 🖼️️ Preview
+
+| Dark 2026                                                   | Dark Modern                                                   |
+| ----------------------------------------------------------- | ------------------------------------------------------------- |
+| <img src="./.github/images/preview-sidebar-dark2026.png" /> | <img src="./.github/images/preview-sidebar-darkmodern.png" /> |
+
+---
+
 ## ⚙️ Configuration
 
 Add your preferred note directory and repository link in **VS Code settings**:
@@ -23,22 +37,84 @@ Add your preferred note directory and repository link in **VS Code settings**:
 "notecode.repoLink": "https://github.com/note-code-extension/note-code"
 ```
 
-> ### 🌟 **Highly Recommended:**
->
-> For the best experience, install alongside **[Markdown Preview Enhanced](https://marketplace.visualstudio.com/items?itemName=shd101wyy.markdown-preview-enhanced)** by _Yiyi Wang_.
+## 🚀 Quick Setup
 
-## 🚀 Setup
+A fast, predictable onboarding flow. Each step tells you **what to do** and **what the extension does for you**.
 
-1. Select or create your notes directory.
-2. Initialize git inside of directory
-    ```bash
-    git init
-    ```
-3. Add a remote repository
-    ```bash
-    git remote add origin https://github.com/user/repo.git
-    ```
-4. Ready to sync!
+---
+
+### 1) Set Your Local Workspace
+
+> Choose where your notes live on your computer.
+
+**Do this**
+
+- Click **Select Folder**
+- Pick a directory (e.g. `~/Documents/notes`)
+
+**Tips**
+
+- Use an **empty folder** for a clean start
+
+**What happens behind the scenes**
+
+- The extension prepares the folder as a Git workspace (if it isn’t already)
+
+---
+
+### 2) Create Your Remote Vault
+
+> Create a repository on GitHub or GitLab to store your notes in the cloud.
+
+**Do this**
+
+- Create a **new repository**
+- Set it to **Private** (recommended for personal notes)
+
+**Important**
+
+- **Do NOT** initialize with a README, License, or .gitignore if you already have local notes
+- Keep the repo **empty**
+
+**Why**
+
+- This prevents merge conflicts during the first sync
+
+---
+
+### 3) Link & Clone
+
+> Connect your local folder to your remote repository.
+
+**Do this**
+
+- Paste your repo URL into the input field  
+  `https://github.com/username/my-notes.git`
+
+**What happens behind the scenes**
+
+- If the folder is empty → the extension runs `git clone`
+
+No manual Git commands needed.
+
+---
+
+### 4) Stay in Sync
+
+> Keep your notes backed up and available across devices.
+
+**Your workflow**
+
+- Edit or create notes
+- Click **Sync**
+
+**What happens behind the scenes**
+
+- The extension pulls remote changes
+- Commits your local changes
+- Pushes everything safely to the remote
+
+Your notes are now versioned, backed up, and accessible anywhere.
 
 ## 🧭 Commands & Actions
 

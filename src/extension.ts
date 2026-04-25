@@ -30,7 +30,10 @@ export function activate(context: vscode.ExtensionContext) {
 
 	// Provider Tree View
 	const treeDataProvider = new NotesTreeProvider(context, noteManager)
-	noteManager.setRefresh(() => treeDataProvider.refresh())
+	noteManager.setRefresh(async () => {
+		await treeDataProvider.refresh()
+		workspaceViewProvider.refresh()
+	})
 
 	// Comands
 	context.subscriptions.push(
