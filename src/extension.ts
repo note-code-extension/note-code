@@ -51,6 +51,7 @@ export function activate(context: vscode.ExtensionContext) {
 		vscode.commands.registerCommand('notecode.folder.create', (file) => noteManager.createFolder(file)),
 		vscode.commands.registerCommand('notecode.file.delete', (file) => noteManager.deleteNote(file)),
 		vscode.commands.registerCommand('notecode.file.rename', (file) => noteManager.updateFilename(file)),
+		vscode.commands.registerCommand('notecode.note.openDir', () => noteManager.openFolder()),
 
 		// Note path related
 		vscode.commands.registerCommand('notecode.note.createDirectory', () => noteManager.setNoteDirectory()),

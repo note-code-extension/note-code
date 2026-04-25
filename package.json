@@ -2,7 +2,7 @@
 	"name": "note-code",
 	"displayName": "Note Code",
 	"description": "A markdown tool note saver extension",
-	"version": "1.1.0",
+	"version": "1.1.1",
 	"icon": "images/note-code-icon.png",
 	"publisher": "note-code-extensions",
 	"repository": {
@@ -64,6 +64,10 @@
 				"command": "notecode.refresh",
 				"title": "Refresh",
 				"icon": "$(refresh)"
+			},
+			{
+				"command": "notecode.note.openDir",
+				"title": "Open Directory"
 			}
 		],
 		"menus": {

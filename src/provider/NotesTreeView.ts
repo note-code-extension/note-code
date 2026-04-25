@@ -45,15 +45,15 @@ export class NotesTreeProvider {
 				if (key === '.') {
 					// Root directory
 					rootFiles.push(
-						...value.map(
-							(file: string) =>
-								new TreeItem(
-									join(noteDir!, file),
-									basename(file),
-									extname(file) === 'md' ? 'notebook' : 'file',
-									vscode.TreeItemCollapsibleState.None,
-								),
-						),
+						...value.map((file: string) => {
+							const ext = extname(file)
+							return new TreeItem(
+								join(noteDir!, file),
+								basename(file, ext),
+								ext === '.md' ? 'notebook' : 'file',
+								vscode.TreeItemCollapsibleState.None,
+							)
+						}),
 					)
 				} else if (!key.includes(sep)) {
 					children.push(
@@ -95,15 +95,15 @@ export class NotesTreeProvider {
 			}
 
 			children.push(
-				...folderFiles.map(
-					(folderFiles) =>
-						new TreeItem(
-							join(noteDir!, element.rootFolder ?? '', folderFiles),
-							basename(folderFiles),
-							extname(folderFiles) === 'md' ? 'notebook' : 'file',
-							vscode.TreeItemCollapsibleState.None,
-						),
-				),
+				...folderFiles.map((folderFiles) => {
+					const ext = extname(folderFiles)
+					return new TreeItem(
+						join(noteDir!, element.rootFolder ?? '', folderFiles),
+						basename(folderFiles, ext),
+						ext === '.md' ? 'notebook' : 'file',
+						vscode.TreeItemCollapsibleState.None,
+					)
+				}),
 			)
 		}
 
